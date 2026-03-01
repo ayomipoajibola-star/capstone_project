@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import InputBox from './components/InputBox'
+import CurrencySelector, { getCurrencyMeta } from './components/CurrencySelector'
 import useCurrencyInfo from './hooks/useCurrencyInfo'
 
 function App() {
@@ -16,9 +17,8 @@ function App() {
   const swap = () => {
     setFrom(to)
     setTo(from)
-    setConvertedAmount(amount)
-    setAmount(convertedAmount || '')
     setConvertedAmount(null)
+    setAmount(convertedAmount || '')
   }
 
   const convert = () => {
@@ -32,6 +32,8 @@ function App() {
   }
 
   const rate = currencyInfo[to] ? currencyInfo[to].toFixed(4) : '—'
+  const fromMeta = getCurrencyMeta(from)
+  const toMeta = getCurrencyMeta(to)
 
   return (
     <>
@@ -63,9 +65,10 @@ function App() {
 
         .bg-scene {
           position: fixed; inset: 0; z-index: 0;
-          background: radial-gradient(ellipse 80% 60% at 20% 80%, rgba(212,168,67,0.07) 0%, transparent 60%),
-                      radial-gradient(ellipse 60% 80% at 85% 10%, rgba(212,168,67,0.05) 0%, transparent 55%),
-                      #0D0D0D;
+          background:
+            radial-gradient(ellipse 80% 60% at 20% 80%, rgba(212,168,67,0.07) 0%, transparent 60%),
+            radial-gradient(ellipse 60% 80% at 85% 10%, rgba(212,168,67,0.05) 0%, transparent 55%),
+            #0D0D0D;
         }
 
         .grid-lines {
@@ -88,7 +91,6 @@ function App() {
           to   { opacity: 1; transform: translateY(0); }
         }
 
-        /* ── HEADER ── */
         .header {
           text-align: center;
           margin-bottom: 28px;
@@ -108,19 +110,22 @@ function App() {
           line-height: 1;
           letter-spacing: -0.02em;
         }
-        .header h1 span {
-          color: var(--gold);
-        }
+        .header h1 span { color: var(--gold); }
+
         .rate-ticker {
           font-family: 'DM Mono', monospace;
           font-size: 11px;
           color: var(--muted);
           margin-top: 10px;
           letter-spacing: 0.05em;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
         }
         .rate-ticker b { color: var(--gold-light); }
+        .rate-flags { font-size: 14px; }
 
-        /* ── CARD ── */
         .card {
           background: var(--card);
           border: 1px solid var(--border);
@@ -132,7 +137,6 @@ function App() {
             inset 0 1px 0 rgba(255,255,255,0.04);
         }
 
-        /* ── INPUT BLOCK ── */
         .input-block {
           background: var(--card2);
           border: 1px solid rgba(255,255,255,0.06);
@@ -172,44 +176,6 @@ function App() {
         .amount-input::placeholder { color: rgba(245,240,232,0.2); }
         .amount-input:disabled { color: var(--gold-light); }
 
-        .currency-pill {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          background: rgba(212,168,67,0.1);
-          border: 1px solid rgba(212,168,67,0.2);
-          border-radius: 10px;
-          padding: 6px 10px;
-          cursor: pointer;
-          flex-shrink: 0;
-        }
-        .currency-select {
-          background: none;
-          border: none;
-          outline: none;
-          font-family: 'Syne', sans-serif;
-          font-size: 14px;
-          font-weight: 700;
-          color: var(--gold-light);
-          letter-spacing: 0.06em;
-          cursor: pointer;
-          appearance: none;
-          -webkit-appearance: none;
-          text-transform: uppercase;
-          min-width: 44px;
-        }
-        .currency-select option {
-          background: #1C1C1C;
-          color: #F5F0E8;
-          text-transform: uppercase;
-        }
-        .drop-icon {
-          font-size: 10px;
-          color: var(--gold);
-          pointer-events: none;
-        }
-
-        /* ── DIVIDER + SWAP ── */
         .divider {
           display: flex;
           align-items: center;
@@ -239,9 +205,7 @@ function App() {
           transform: rotate(180deg) scale(1.1);
           background: var(--gold-light);
         }
-        .swap-btn:active { transform: rotate(180deg) scale(0.95); }
 
-        /* ── RESULT DISPLAY ── */
         .result-area {
           text-align: center;
           padding: 20px 0 8px;
@@ -264,14 +228,16 @@ function App() {
           color: var(--gold-light);
           letter-spacing: -0.02em;
           line-height: 1;
-          transition: all 0.3s;
         }
         .result-currency {
           font-family: 'Syne', sans-serif;
-          font-size: 14px;
+          font-size: 13px;
           color: var(--muted);
           letter-spacing: 0.12em;
           text-transform: uppercase;
+          display: flex;
+          align-items: center;
+          gap: 5px;
         }
         .result-placeholder {
           font-family: 'DM Mono', monospace;
@@ -287,7 +253,6 @@ function App() {
         }
         .sparkle { animation: sparkleAnim 0.6s ease; }
 
-        /* ── CONVERT BUTTON ── */
         .convert-btn {
           width: 100%;
           margin-top: 20px;
@@ -320,12 +285,8 @@ function App() {
           transform: translateY(-2px);
           box-shadow: 0 10px 40px rgba(212,168,67,0.45);
         }
-        .convert-btn:active { transform: translateY(0); }
-        .convert-btn:disabled {
-          opacity: 0.6; cursor: not-allowed; transform: none;
-        }
+        .convert-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
-        /* ── SPINNER ── */
         .spinner {
           display: inline-block;
           width: 16px; height: 16px;
@@ -338,7 +299,6 @@ function App() {
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* ── FOOTER ── */
         .footer-note {
           text-align: center;
           margin-top: 18px;
@@ -356,15 +316,17 @@ function App() {
         {/* Header */}
         <div className="header">
           <p className="header-eyebrow">✦ Live Exchange Rates</p>
-          <h1>Currency<br/><span>Exchange</span></h1>
+          <h1>Currency<br /><span>Exchange</span></h1>
           <p className="rate-ticker">
-            1 <b>{from.toUpperCase()}</b> = <b>{rate}</b> {to.toUpperCase()}
+            <span className="rate-flags">{fromMeta.flag}</span>
+            <span>1 <b>{from.toUpperCase()}</b> = <b>{rate}</b> {to.toUpperCase()}</span>
+            <span className="rate-flags">{toMeta.flag}</span>
           </p>
         </div>
 
         {/* Card */}
         <div className="card">
-          <form onSubmit={(e) => { e.preventDefault(); convert(); }}>
+          <form onSubmit={(e) => { e.preventDefault(); convert() }}>
 
             {/* FROM */}
             <div className="input-block">
@@ -375,28 +337,18 @@ function App() {
                   type="number"
                   placeholder="0.00"
                   value={amount}
-                  onChange={(e) => {
-                    setAmount(e.target.value)
-                    setConvertedAmount(null)
-                  }}
+                  onChange={(e) => { setAmount(e.target.value); setConvertedAmount(null) }}
                   min="0"
                 />
-                <div className="currency-pill">
-                  <select
-                    className="currency-select"
-                    value={from}
-                    onChange={(e) => { setFrom(e.target.value); setConvertedAmount(null); }}
-                  >
-                    {options.map((curr) => (
-                      <option key={curr} value={curr}>{curr.toUpperCase()}</option>
-                    ))}
-                  </select>
-                  <span className="drop-icon">▾</span>
-                </div>
+                <CurrencySelector
+                  value={from}
+                  onChange={(curr) => { setFrom(curr); setConvertedAmount(null) }}
+                  options={options}
+                />
               </div>
             </div>
 
-            {/* SWAP DIVIDER */}
+            {/* SWAP */}
             <div className="divider">
               <div className="divider-line" />
               <button type="button" className="swap-btn" onClick={swap} title="Swap currencies">⇅</button>
@@ -415,39 +367,33 @@ function App() {
                   disabled
                   readOnly
                 />
-                <div className="currency-pill">
-                  <select
-                    className="currency-select"
-                    value={to}
-                    onChange={(e) => { setTo(e.target.value); setConvertedAmount(null); }}
-                  >
-                    {options.map((curr) => (
-                      <option key={curr} value={curr}>{curr.toUpperCase()}</option>
-                    ))}
-                  </select>
-                  <span className="drop-icon">▾</span>
-                </div>
+                <CurrencySelector
+                  value={to}
+                  onChange={(curr) => { setTo(curr); setConvertedAmount(null) }}
+                  options={options}
+                />
               </div>
             </div>
 
-            {/* RESULT DISPLAY */}
+            {/* RESULT */}
             <div className="result-area">
               {isConverting ? (
                 <p className="result-placeholder">Converting…</p>
               ) : convertedAmount !== null ? (
                 <>
                   <p className="result-label">Converted Amount</p>
-                  <p className={`result-value ${sparkle ? 'sparkle' : ''}`}>
-                    {convertedAmount}
+                  <p className={`result-value ${sparkle ? 'sparkle' : ''}`}>{convertedAmount}</p>
+                  <p className="result-currency">
+                    <span>{toMeta.flag}</span>
+                    <span>{toMeta.name}</span>
                   </p>
-                  <p className="result-currency">{to.toUpperCase()}</p>
                 </>
               ) : (
                 <p className="result-placeholder">Enter an amount to convert</p>
               )}
             </div>
 
-            {/* CONVERT BUTTON */}
+            {/* BUTTON */}
             <button
               type="submit"
               className="convert-btn"
